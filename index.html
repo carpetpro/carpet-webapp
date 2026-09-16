@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>پرو مجازی فرش</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+    body { background-color: #121212; color: #fff; text-align: center; overflow: hidden; }
+    .header { padding: 10px; background: #1f1f1f; display: flex; justify-content: space-between; align-items: center; }
+    .btn { background: #0088cc; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .carpet-selector { display: flex; gap: 10px; overflow-x: auto; padding: 10px; background: #181818; }
+    .carpet-item { width: 60px; height: 60px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; object-fit: cover; }
+    .carpet-item.active { border-color: #0088cc; }
+    #canvas-container { width: 100vw; height: calc(100vh - 130px); display: flex; align-items: center; justify-content: center; background: #000; }
+    canvas { max-width: 100%; max-height: 100%; }
+    input[type="file"] { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <button class="btn" onclick="document.getElementById('room-input').click()">📸 انتخاب عکس اتاق</button>
+    <input type="file" id="room-input" accept="image/*" onchange="loadRoomImage(event)">
+    <span>پرو مجازی فرش</span>
+    <button class="btn" style="background:#27ae60;" onclick="sendResultToTelegram()">✅ ثبت و ارسال</button>
+  </div>
+
+  <div class="carpet-selector">
+    <img src="https://images.unsplash.com/photo-1600121848594-d8644e57abab?q=80&w=400" class="carpet-item active" onclick="addCarpet(this.src)">
+    <img src="https://images.unsplash.com/photo-1579656381226-5fc0f0100c3b?q=80&w=400" class="carpet-item" onclick="addCarpet(this.src)">
+  </div>
+
+  <div id="canvas-container">
+    <canvas id="carpet-canvas"></canvas>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    const canvas = new fabric.Canvas('carpet-canvas', {
+      width: window.innerWidth,
+      height: window.innerHeight - 130
+    });
+
+    let currentCarpet = null;
+
+    function loadRoomImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (f) {
+        fabric.Image.fromURL(f.target.result, function (img) {
+          const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+            scaleX: scale,
+            scaleY: scale,
+            originX: 'center',
+            originY: 'center',
+            left: canvas.width / 2,
+            top: canvas.height / 2
+          });
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function addCarpet(url) {
+      if (currentCarpet) {
+        canvas.remove(currentCarpet);
+      }
+
+      fabric.Image.fromURL(url, function (img) {
+        img.scaleToWidth(canvas.width * 0.4);
+        img.set({
+          left: canvas.width / 2,
+          top: canvas.height / 2 + 50,
+          originX: 'center',
+          originY: 'center',
+          cornerColor: '#0088cc',
+          cornerSize: 12,
+          transparentCorners: false
+        });
+
+        currentCarpet = img;
+        canvas.add(img);
+        canvas.setActiveObject(img);
+        canvas.renderAll();
+      }, { crossOrigin: 'anonymous' });
+    }
+
+    function sendResultToTelegram() {
+      if (!canvas.backgroundImage) {
+        alert("لطفاً ابتدا عکس اتاق خود را آپلود کنید.");
+        return;
+      }
+      
+      const dataUrl = canvas.toDataURL({ format: 'jpeg', quality: 0.85 });
+      tg.sendData(JSON.stringify({ image: dataUrl }));
+      tg.close();
+    }
+
+    addCarpet("https://images.unsplash.com/photo-1600121848594-d8644e57abab?q=80&w=400");
+  </script>
+</body>
+</html>
