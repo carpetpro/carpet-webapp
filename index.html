@@ -56,7 +56,16 @@
       transform: scale(0.95); 
     }
 
-    #canvas-container { position: relative; width: 100vw; height: calc(100vh - 125px); background: #181818; display: flex; align-items: center; justify-content: center; }
+    #canvas-container { 
+      position: relative; 
+      width: 100vw; 
+      height: calc(100vh - 125px); 
+      background: #181818; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      margin-top: -1cm; /* انتقال دقیق ۱ سانتی‌متر به سمت بالا */
+    }
     canvas { display: block; max-width: 100%; max-height: 100%; touch-action: none; }
 
     #placeholder { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); color: #aaa; text-align: center; pointer-events: none; width: 85%; }
