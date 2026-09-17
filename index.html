@@ -9,6 +9,18 @@
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     body { font-family: Tahoma, sans-serif; background: #121212; color: #fff; text-align: center; overflow: hidden; }
     
+    /* نوار آمار بازدید کل */
+    .top-bar {
+      background: #181818;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: #00e5ff;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     .controls { display: flex; gap: 6px; padding: 6px; background: #1e1e1e; justify-content: center; flex-wrap: wrap; z-index: 10; position: relative; }
     button, label.btn { padding: 8px 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
     
@@ -51,6 +63,11 @@
       margin-top: 3px;
       font-weight: bold;
     }
+    .catalog-item .try-count {
+      font-size: 9px;
+      color: #ff9800;
+      margin-top: 2px;
+    }
     .catalog-item:active img { 
       border-color: #ff9800; 
       transform: scale(0.95); 
@@ -59,12 +76,12 @@
     #canvas-container { 
       position: relative; 
       width: 100vw; 
-      height: calc(100vh - 125px); 
+      height: calc(100vh - 150px); 
       background: #181818; 
       display: flex; 
       align-items: center; 
       justify-content: center;
-      margin-top: -1cm; /* انتقال دقیق ۱ سانتی‌متر به سمت بالا */
+      margin-top: -1cm;
     }
     canvas { display: block; max-width: 100%; max-height: 100%; touch-action: none; }
 
@@ -73,6 +90,11 @@
   </style>
 </head>
 <body>
+
+  <div class="top-bar">
+    <span>✨ سامانه پرو مجازی فرش</span>
+    <span>👁️ تعداد بازدید کل: <b id="visitCounter">0</b></span>
+  </div>
 
   <div class="controls">
     <label class="btn btn-blue">📁 گالری
@@ -88,99 +110,118 @@
   <div id="catalog-bar">
     <span style="font-size:11px; color:#ff9800; white-space:nowrap; font-weight:bold;">کاتالوگ:</span>
     
-     <div class="catalog-item" onclick="addCarpetFromUrl('carpet631.jpg')">
-      <img src="carpet631.jpg" alt="کد 631" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=652'">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet631.jpg', '631')">
+      <img src="carpet631.jpg" alt="کد 631" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=631'">
       <span>کد 631</span>
+      <span class="try-count">پرو: <b id="count-631">0</b></span>
     </div>
     
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet632.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet632.jpg', '632')">
       <img src="carpet632.jpg" alt="کد 632" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=632'">
       <span>کد 632</span>
+      <span class="try-count">پرو: <b id="count-632">0</b></span>
     </div>
 
-  <div class="catalog-item" onclick="addCarpetFromUrl('carpet633.jpg')">
-      <img src="carpet633.jpg" alt="کد 633" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=652'">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet633.jpg', '633')">
+      <img src="carpet633.jpg" alt="کد 633" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=633'">
       <span>کد 633</span>
+      <span class="try-count">پرو: <b id="count-633">0</b></span>
     </div>
 
-  <div class="catalog-item" onclick="addCarpetFromUrl('carpet634.jpg')">
-      <img src="carpet634.jpg" alt="کد 634" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=652'">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet634.jpg', '634')">
+      <img src="carpet634.jpg" alt="کد 634" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=634'">
       <span>کد 634</span>
+      <span class="try-count">پرو: <b id="count-634">0</b></span>
     </div>
     
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet635.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet635.jpg', '635')">
       <img src="carpet635.jpg" alt="کد 635" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=635'">
       <span>کد 635</span>
+      <span class="try-count">پرو: <b id="count-635">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet636.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet636.jpg', '636')">
       <img src="carpet636.jpg" alt="کد 636" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=636'">
       <span>کد 636</span>
+      <span class="try-count">پرو: <b id="count-636">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet637.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet637.jpg', '637')">
       <img src="carpet637.jpg" alt="کد 637" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=637'">
       <span>کد 637</span>
+      <span class="try-count">پرو: <b id="count-637">0</b></span>
     </div>
 
-  <div class="catalog-item" onclick="addCarpetFromUrl('carpet638.jpg')">
-      <img src="carpet638.jpg" alt="کد 638" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=652'">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet638.jpg', '638')">
+      <img src="carpet638.jpg" alt="کد 638" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=638'">
       <span>کد 638</span>
+      <span class="try-count">پرو: <b id="count-638">0</b></span>
     </div>
     
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet639.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet639.jpg', '639')">
       <img src="carpet639.jpg" alt="کد 639" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=639'">
       <span>کد 639</span>
+      <span class="try-count">پرو: <b id="count-639">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet645.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet645.jpg', '645')">
       <img src="carpet645.jpg" alt="کد 645" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=645'">
       <span>کد 645</span>
+      <span class="try-count">پرو: <b id="count-645">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet646.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet646.jpg', '646')">
       <img src="carpet646.jpg" alt="کد 646" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=646'">
       <span>کد 646</span>
+      <span class="try-count">پرو: <b id="count-646">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet647.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet647.jpg', '647')">
       <img src="carpet647.jpg" alt="کد 647" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=647'">
       <span>کد 647</span>
+      <span class="try-count">پرو: <b id="count-647">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet649.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet649.jpg', '649')">
       <img src="carpet649.jpg" alt="کد 649" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=649'">
       <span>کد 649</span>
+      <span class="try-count">پرو: <b id="count-649">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet650.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet650.jpg', '650')">
       <img src="carpet650.jpg" alt="کد 650" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=650'">
       <span>کد 650</span>
+      <span class="try-count">پرو: <b id="count-650">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet652.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet652.jpg', '652')">
       <img src="carpet652.jpg" alt="کد 652" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=652'">
       <span>کد 652</span>
+      <span class="try-count">پرو: <b id="count-652">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet653.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet653.jpg', '653')">
       <img src="carpet653.jpg" alt="کد 653" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=653'">
       <span>کد 653</span>
+      <span class="try-count">پرو: <b id="count-653">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet654.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet654.jpg', '654')">
       <img src="carpet654.jpg" alt="کد 654" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=654'">
       <span>کد 654</span>
+      <span class="try-count">پرو: <b id="count-654">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet656.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet656.jpg', '656')">
       <img src="carpet656.jpg" alt="کد 656" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=656'">
       <span>کد 656</span>
+      <span class="try-count">پرو: <b id="count-656">0</b></span>
     </div>
 
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet659.jpg')">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet659.jpg', '659')">
       <img src="carpet659.jpg" alt="کد 659" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=659'">
       <span>کد 659</span>
+      <span class="try-count">پرو: <b id="count-659">0</b></span>
     </div>
   </div>
 
@@ -209,9 +250,35 @@
   let activeCarpetIdx = -1;
   let activePtIdx = -1;
 
+  // --- سیستم آمار بازدید و پرو ---
+  function initStats() {
+    // ۱. تعداد بازدید کل
+    let totalVisits = parseInt(localStorage.getItem('app_total_visits') || '0') + 1;
+    localStorage.setItem('app_total_visits', totalVisits);
+    document.getElementById('visitCounter').innerText = totalVisits;
+
+    // ۲. به‌روزرسانی اعداد پروهای قبلی ثبت‌شده برای هر فرش
+    const carpetCodes = ['631', '632', '633', '634', '635', '636', '637', '638', '639', '645', '646', '647', '649', '650', '652', '653', '654', '656', '659'];
+    carpetCodes.forEach(code => {
+      let count = localStorage.getItem('carpet_try_' + code) || '0';
+      let el = document.getElementById('count-' + code);
+      if (el) el.innerText = count;
+    });
+  }
+  initStats();
+
+  function incrementCarpetTry(code) {
+    if (!code) return;
+    let currentCount = parseInt(localStorage.getItem('carpet_try_' + code) || '0') + 1;
+    localStorage.setItem('carpet_try_' + code, currentCount);
+    let el = document.getElementById('count-' + code);
+    if (el) el.innerText = currentCount;
+  }
+  // ---------------------------------
+
   function initCanvasSize() {
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 125;
+    canvas.height = window.innerHeight - 150;
   }
   initCanvasSize();
 
@@ -234,11 +301,15 @@
   document.getElementById('roomGalleryInput').addEventListener('change', (e) => handleRoomImage(e.target.files[0]));
   document.getElementById('roomCameraInput').addEventListener('change', (e) => handleRoomImage(e.target.files[0]));
 
-  function addCarpetFromUrl(url) {
+  function addCarpetFromUrl(url, code) {
     if (!roomImg) {
       alert("لطفاً ابتدا تصویر اتاق را بارگذاری کنید.");
       return;
     }
+    
+    // ثبت و افزایش شمارنده پرو برای این کد فرش
+    incrementCarpetTry(code);
+
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
