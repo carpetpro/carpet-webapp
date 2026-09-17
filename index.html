@@ -7,9 +7,9 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body { font-family: Tahoma, sans-serif; background: #121212; color: #fff; text-align: center; overflow: hidden; }
+    html, body { width: 100%; height: 100%; background: #121212; color: #fff; text-align: center; overflow: hidden; display: flex; flex-direction: column; }
     
-    .controls { display: flex; gap: 6px; padding: 6px; background: #1e1e1e; justify-content: center; flex-wrap: wrap; z-index: 10; position: relative; }
+    .controls { display: flex; gap: 6px; padding: 6px; background: #1e1e1e; justify-content: center; flex-wrap: wrap; z-index: 10; flex-shrink: 0; }
     button, label.btn { padding: 8px 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
     
     .btn-blue { background: #0088cc; color: #fff; }
@@ -17,17 +17,17 @@
     .btn-red { background: #f44336; color: #fff; }
     input[type="file"] { display: none; }
 
-    /* نوار کاتالوگ فرش‌های نمونه */
+    /* نوار کاتالوگ فرش‌ها */
     #catalog-bar { 
       display: flex; 
       gap: 10px; 
       overflow-x: auto; 
       padding: 6px 10px; 
       background: #252525; 
-      position: relative; 
       z-index: 9; 
       align-items: center;
       scrollbar-width: thin;
+      flex-shrink: 0;
     }
     .catalog-item {
       display: flex;
@@ -37,27 +37,31 @@
       flex-shrink: 0;
     }
     .catalog-item img { 
-      width: 60px; 
-      height: 80px; 
+      width: 55px; 
+      height: 75px; 
       border-radius: 6px; 
       border: 2px solid #555; 
       object-fit: cover; 
       background: #333; 
-      transition: transform 0.1s, border-color 0.1s;
     }
     .catalog-item span {
       font-size: 10px;
       color: #ccc;
-      margin-top: 3px;
+      margin-top: 2px;
       font-weight: bold;
     }
-    .catalog-item:active img { 
-      border-color: #ff9800; 
-      transform: scale(0.95); 
-    }
 
-    #canvas-container { position: relative; width: 100vw; height: calc(100vh - 125px); background: #181818; display: flex; align-items: center; justify-content: center; }
-    canvas { display: block; max-width: 100%; max-height: 100%; touch-action: none; }
+    #canvas-container { 
+      position: relative; 
+      width: 100vw; 
+      flex-grow: 1; 
+      background: #181818; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      overflow: hidden;
+    }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 
     #placeholder { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); color: #aaa; text-align: center; pointer-events: none; width: 85%; }
     #placeholder .icon { font-size: 40px; margin-bottom: 8px; display: block; }
@@ -65,7 +69,7 @@
 </head>
 <body>
 
-  <div class="controls">
+  <div class="controls" id="controls">
     <label class="btn btn-blue">📁 گالری
       <input type="file" id="roomGalleryInput" accept="image/*">
     </label>
@@ -79,7 +83,7 @@
   <div id="catalog-bar">
     <span style="font-size:11px; color:#ff9800; white-space:nowrap; font-weight:bold;">کاتالوگ:</span>
     
- <div class="catalog-item" onclick="addCarpetFromUrl('carpet631.jpg')">
+     <div class="catalog-item" onclick="addCarpetFromUrl('carpet631.jpg')">
       <img src="carpet631.jpg" alt="کد 631" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=652'">
       <span>کد 631</span>
     </div>
@@ -194,17 +198,21 @@
   const canvas = document.getElementById('mainCanvas');
   const ctx = canvas.getContext('2d');
   const placeholder = document.getElementById('placeholder');
+  const container = document.getElementById('canvas-container');
 
   let roomImg = null;
   let carpets = [];
   let activeCarpetIdx = -1;
   let activePtIdx = -1;
 
-  function initCanvasSize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 125;
+  function updateCanvasDimensions() {
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    draw();
   }
-  initCanvasSize();
+  
+  window.addEventListener('resize', updateCanvasDimensions);
+  setTimeout(updateCanvasDimensions, 100);
 
   function handleRoomImage(file) {
     if (!file) return;
@@ -213,9 +221,7 @@
       roomImg = new Image();
       roomImg.onload = () => {
         placeholder.style.display = 'none';
-        canvas.width = roomImg.width;
-        canvas.height = roomImg.height;
-        draw();
+        updateCanvasDimensions();
       };
       roomImg.src = e.target.result;
     };
@@ -235,7 +241,7 @@
     img.onload = () => {
       const w = canvas.width;
       const h = canvas.height;
-      const offset = carpets.length * 25;
+      const offset = carpets.length * 20;
 
       const newCarpet = {
         img: img,
@@ -314,11 +320,11 @@
 
     let deltaA = p0.x * (t1.y - t2.y) + p1.x * (t2.y - t0.y) + p2.x * (t0.y - t1.y);
     let deltaB = t0.x * (p1.x - p2.x) + t1.x * (p2.x - p0.x) + t2.x * (p0.x - p1.x);
-    let deltaC = t0.x * (t1.y * p2.x - t2.y * p1.x) + t1.x * (t2.y * p0.x - t0.y * p2.x) + t2.x * (t0.y * p1.x - t1.y * p0.x);
+    let deltaC = t0.x * (t1.y * p2.x - t2.y * p1.x) + t1.x * (t2.y * p0.x - t0.y * p2.x) + t2.x * (p0.x * t1.y - t1.x * p0.y);
 
     let deltaD = p0.y * (t1.y - t2.y) + p1.y * (t2.y - t0.y) + p2.y * (t0.y - t1.y);
     let deltaE = t0.x * (p1.y - p2.y) + t1.x * (p2.y - p0.y) + t2.x * (p0.y - p1.y);
-    let deltaF = t0.x * (t1.y * p2.y - t2.y * p1.y) + t1.x * (t2.y * p0.y - t0.y * p2.y) + t2.x * (t0.y * p1.y - t1.y * p0.y);
+    let deltaF = t0.x * (t1.y * p2.y - t2.y * p1.y) + t1.x * (t2.y * p0.y - t0.y * p2.y) + t2.x * (p0.y * t1.y - t1.y * p0.y);
 
     ctx.transform(deltaA / delta, deltaD / delta, deltaB / delta, deltaE / delta, deltaC / delta, deltaF / delta);
     ctx.drawImage(img, 0, 0);
@@ -326,7 +332,9 @@
 
   function draw(hideHandles = false) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (roomImg) ctx.drawImage(roomImg, 0, 0);
+    if (roomImg) {
+      ctx.drawImage(roomImg, 0, 0, canvas.width, canvas.height);
+    }
 
     carpets.forEach((carpet, cIdx) => {
       drawPerspective(carpet);
@@ -343,7 +351,7 @@
         carpet.pts.forEach(p => {
           ctx.fillStyle = cIdx === activeCarpetIdx ? '#ff0055' : '#00e5ff';
           ctx.beginPath();
-          ctx.arc(p.x, p.y, canvas.width * 0.015, 0, Math.PI * 2);
+          ctx.arc(p.x, p.y, Math.max(8, canvas.width * 0.012), 0, Math.PI * 2);
           ctx.fill();
         });
       }
@@ -362,7 +370,7 @@
 
   function startDrag(e) {
     const pos = getCanvasPos(e);
-    const radius = canvas.width * 0.06;
+    const radius = 30;
 
     activePtIdx = -1;
 
