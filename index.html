@@ -13,18 +13,17 @@
     button, label.btn { padding: 8px 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
     
     .btn-blue { background: #0088cc; color: #fff; }
-    .btn-orange { background: #ff9800; color: #fff; }
-    .btn-green { background: #4caf50; color: #fff; }
     .btn-purple { background: #9c27b0; color: #fff; }
+    .btn-green { background: #4caf50; color: #fff; }
     .btn-red { background: #f44336; color: #fff; }
     input[type="file"] { display: none; }
 
     /* نوار کاتالوگ فرش‌های نمونه */
-    #catalog-bar { display: flex; gap: 8px; overflow-x: auto; padding: 8px; background: #252525; position: relative; z-index: 9; }
-    #catalog-bar img { width: 50px; height: 50px; border-radius: 6px; border: 2px solid #444; object-fit: cover; cursor: pointer; flex-shrink: 0; }
-    #catalog-bar img:active { border-color: #ff9800; }
+    #catalog-bar { display: flex; gap: 10px; overflow-x: auto; padding: 10px; background: #252525; position: relative; z-index: 9; align-items: center; }
+    #catalog-bar img { width: 60px; height: 60px; border-radius: 8px; border: 2px solid #555; object-fit: cover; cursor: pointer; flex-shrink: 0; background: #333; }
+    #catalog-bar img:active { border-color: #ff9800; transform: scale(0.95); }
 
-    #canvas-container { position: relative; width: 100vw; height: calc(100vh - 130px); background: #181818; display: flex; align-items: center; justify-content: center; }
+    #canvas-container { position: relative; width: 100vw; height: calc(100vh - 140px); background: #181818; display: flex; align-items: center; justify-content: center; }
     canvas { display: block; max-width: 100%; max-height: 100%; touch-action: none; }
 
     #placeholder { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); color: #aaa; text-align: center; pointer-events: none; width: 85%; }
@@ -40,18 +39,16 @@
     <label class="btn btn-blue">📷 دوربین
       <input type="file" id="roomCameraInput" accept="image/*" capture="environment">
     </label>
-    <label class="btn btn-orange">➕ افزودن فرش
-      <input type="file" id="carpetInput" accept="image/*">
-    </label>
+    <button class="btn btn-red" id="removeBtn">🗑️ حذف فرش فعال</button>
     <button class="btn btn-purple" id="downloadBtn">💾 ذخیره عکس</button>
     <button class="btn btn-green" id="sendBtn">✅ ارسال به ربات</button>
   </div>
 
   <div id="catalog-bar">
-    <span style="font-size:11px; align-self:center; color:#aaa; margin-left:4px;">نمونه‌ها:</span>
-    <img src="https://picsum.photos/id/1062/200/200" title="فرش ۱" onclick="addCarpetFromUrl(this.src)">
-    <img src="https://picsum.photos/id/1025/200/200" title="فرش ۲" onclick="addCarpetFromUrl(this.src)">
-    <img src="https://picsum.photos/id/1040/200/200" title="فرش ۳" onclick="addCarpetFromUrl(this.src)">
+    <span style="font-size:11px; color:#aaa; white-space:nowrap;">انتخاب فرش:</span>
+    <img src="https://raw.githubusercontent.com/carpetpro/carpet-webapp/main/carpet1.jpg" title="فرش ۱" onclick="addCarpetFromUrl(this.src)" onerror="this.src='https://via.placeholder.com/150/ff9800/ffffff?text=Carpet+1'">
+    <img src="https://raw.githubusercontent.com/carpetpro/carpet-webapp/main/carpet2.jpg" title="فرش ۲" onclick="addCarpetFromUrl(this.src)" onerror="this.src='https://via.placeholder.com/150/0088cc/ffffff?text=Carpet+2'">
+    <img src="https://raw.githubusercontent.com/carpetpro/carpet-webapp/main/carpet3.jpg" title="فرش ۳" onclick="addCarpetFromUrl(this.src)" onerror="this.src='https://via.placeholder.com/150/4caf50/ffffff?text=Carpet+3'">
   </div>
 
   <div id="canvas-container">
@@ -59,7 +56,8 @@
       <span class="icon">🏠</span>
       <p><b>سامانه پرو مجازی فرش</b></p>
       <p style="font-size: 12px; margin-top: 6px; color: #888;">
-        عکس اتاق را از دوربین یا گالری وارد کنید، سپس می‌توانید چند فرش اضافه کرده و زاویه آن‌ها را تنظیم کنید.
+        ۱. ابتدا تصویر اتاق را بارگذاری کنید.<br>
+        ۲. از نوار بالا فرش موردنظر خود را انتخاب کرده و زاویه آن را روی زمین تنظیم کنید.
       </p>
     </div>
     <canvas id="mainCanvas"></canvas>
@@ -74,13 +72,13 @@
   const placeholder = document.getElementById('placeholder');
 
   let roomImg = null;
-  let carpets = []; // آرایه نگهداری چند فرش هم‌زمان
+  let carpets = [];
   let activeCarpetIdx = -1;
   let activePtIdx = -1;
 
   function initCanvasSize() {
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 130;
+    canvas.height = window.innerHeight - 140;
   }
   initCanvasSize();
 
@@ -103,42 +101,45 @@
   document.getElementById('roomGalleryInput').addEventListener('change', (e) => handleRoomImage(e.target.files[0]));
   document.getElementById('roomCameraInput').addEventListener('change', (e) => handleRoomImage(e.target.files[0]));
 
-  function addNewCarpet(imgObj) {
-    const w = canvas.width;
-    const h = canvas.height;
-    const offset = carpets.length * 30; // فاصله دادن فرش‌های جدید از هم
-
-    const newCarpet = {
-      img: imgObj,
-      pts: [
-        { x: w * 0.3 + offset, y: h * 0.5 + offset },
-        { x: w * 0.7 + offset, y: h * 0.5 + offset },
-        { x: w * 0.8 + offset, y: h * 0.8 + offset },
-        { x: w * 0.2 + offset, y: h * 0.8 + offset }
-      ]
-    };
-    carpets.push(newCarpet);
-    draw();
-  }
-
-  document.getElementById('carpetInput').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => addNewCarpet(img);
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-
   function addCarpetFromUrl(url) {
+    if (!roomImg) {
+      alert("لطفاً ابتدا تصویر اتاق را از گالری یا دوربین انتخاب کنید.");
+      return;
+    }
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.onload = () => addNewCarpet(img);
+    img.onload = () => {
+      const w = canvas.width;
+      const h = canvas.height;
+      const offset = carpets.length * 30;
+
+      const newCarpet = {
+        img: img,
+        pts: [
+          { x: w * 0.3 + offset, y: h * 0.5 + offset },
+          { x: w * 0.7 + offset, y: h * 0.5 + offset },
+          { x: w * 0.8 + offset, y: h * 0.8 + offset },
+          { x: w * 0.2 + offset, y: h * 0.8 + offset }
+        ]
+      };
+      carpets.push(newCarpet);
+      activeCarpetIdx = carpets.length - 1;
+      draw();
+    };
     img.src = url;
   }
+
+  // حذف فرش انتخاب شده یا آخرین فرش
+  document.getElementById('removeBtn').addEventListener('click', () => {
+    if (carpets.length === 0) return;
+    if (activeCarpetIdx !== -1 && activeCarpetIdx < carpets.length) {
+      carpets.splice(activeCarpetIdx, 1);
+    } else {
+      carpets.pop();
+    }
+    activeCarpetIdx = carpets.length - 1;
+    draw();
+  });
 
   function drawPerspective(carpet) {
     const steps = 15;
@@ -240,7 +241,6 @@
     const pos = getCanvasPos(e);
     const radius = canvas.width * 0.06;
 
-    activeCarpetIdx = -1;
     activePtIdx = -1;
 
     for (let c = carpets.length - 1; c >= 0; c--) {
@@ -271,7 +271,6 @@
   canvas.addEventListener('touchmove', moveDrag);
   canvas.addEventListener('touchend', stopDrag);
 
-  // ذخیره تصویر روی دستگاه
   document.getElementById('downloadBtn').addEventListener('click', () => {
     if (!roomImg) return alert("لطفاً ابتدا عکس اتاق را وارد کنید.");
     draw(true);
@@ -282,7 +281,6 @@
     draw();
   });
 
-  // ارسال تصویر به ربات تلگرام
   document.getElementById('sendBtn').addEventListener('click', () => {
     if (!roomImg) return alert("لطفاً ابتدا عکس اتاق را وارد کنید.");
     draw(true);
