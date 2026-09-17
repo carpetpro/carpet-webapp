@@ -7,9 +7,9 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    html, body { width: 100%; height: 100%; background: #121212; color: #fff; text-align: center; overflow: hidden; display: flex; flex-direction: column; }
+    body { font-family: Tahoma, sans-serif; background: #121212; color: #fff; text-align: center; overflow: hidden; }
     
-    .controls { display: flex; gap: 6px; padding: 6px; background: #1e1e1e; justify-content: center; flex-wrap: wrap; z-index: 10; flex-shrink: 0; }
+    .controls { display: flex; gap: 6px; padding: 6px; background: #1e1e1e; justify-content: center; flex-wrap: wrap; z-index: 10; position: relative; }
     button, label.btn { padding: 8px 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
     
     .btn-blue { background: #0088cc; color: #fff; }
@@ -17,16 +17,17 @@
     .btn-red { background: #f44336; color: #fff; }
     input[type="file"] { display: none; }
 
+    /* نوار کاتالوگ فرش‌های نمونه */
     #catalog-bar { 
       display: flex; 
       gap: 10px; 
       overflow-x: auto; 
       padding: 6px 10px; 
       background: #252525; 
+      position: relative; 
       z-index: 9; 
       align-items: center;
       scrollbar-width: thin;
-      flex-shrink: 0;
     }
     .catalog-item {
       display: flex;
@@ -36,31 +37,27 @@
       flex-shrink: 0;
     }
     .catalog-item img { 
-      width: 55px; 
-      height: 75px; 
+      width: 60px; 
+      height: 80px; 
       border-radius: 6px; 
       border: 2px solid #555; 
       object-fit: cover; 
       background: #333; 
+      transition: transform 0.1s, border-color 0.1s;
     }
     .catalog-item span {
       font-size: 10px;
       color: #ccc;
-      margin-top: 2px;
+      margin-top: 3px;
       font-weight: bold;
     }
-
-    #canvas-container { 
-      position: relative; 
-      width: 100vw; 
-      flex-grow: 1; 
-      background: #181818; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      overflow: hidden;
+    .catalog-item:active img { 
+      border-color: #ff9800; 
+      transform: scale(0.95); 
     }
-    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+    #canvas-container { position: relative; width: 100vw; height: calc(100vh - 125px); background: #181818; display: flex; align-items: center; justify-content: center; }
+    canvas { display: block; max-width: 100%; max-height: 100%; touch-action: none; }
 
     #placeholder { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); color: #aaa; text-align: center; pointer-events: none; width: 85%; }
     #placeholder .icon { font-size: 40px; margin-bottom: 8px; display: block; }
@@ -68,7 +65,7 @@
 </head>
 <body>
 
-  <div class="controls" id="controls">
+  <div class="controls">
     <label class="btn btn-blue">📁 گالری
       <input type="file" id="roomGalleryInput" accept="image/*">
     </label>
@@ -82,80 +79,78 @@
   <div id="catalog-bar">
     <span style="font-size:11px; color:#ff9800; white-space:nowrap; font-weight:bold;">کاتالوگ:</span>
     
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet631.jpg', 'کد 631')">
-      <img src="carpet631.jpg" alt="کد 631" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=631'">
-      <span>کد 631</span>
-    </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet632.jpg', 'کد 632')">
-      <img src="carpet632.jpg" alt="کد 632" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=632'">
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet632.jpg')">
+      <img src="carpet632.jpg" alt="کد 632" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=632'">
       <span>کد 632</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet633.jpg', 'کد 633')">
-      <img src="carpet633.jpg" alt="کد 633" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=633'">
-      <span>کد 633</span>
-    </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet634.jpg', 'کد 634')">
-      <img src="carpet634.jpg" alt="کد 634" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=634'">
-      <span>کد 634</span>
-    </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet635.jpg', 'کد 635')">
-      <img src="carpet635.jpg" alt="کد 635" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=635'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet635.jpg')">
+      <img src="carpet635.jpg" alt="کد 635" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=635'">
       <span>کد 635</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet636.jpg', 'کد 636')">
-      <img src="carpet636.jpg" alt="کد 636" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=636'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet636.jpg')">
+      <img src="carpet636.jpg" alt="کد 636" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=636'">
       <span>کد 636</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet637.jpg', 'کد 637')">
-      <img src="carpet637.jpg" alt="کد 637" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=637'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet637.jpg')">
+      <img src="carpet637.jpg" alt="کد 637" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=637'">
       <span>کد 637</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet638.jpg', 'کد 638')">
-      <img src="carpet638.jpg" alt="کد 638" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=638'">
-      <span>کد 638</span>
-    </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet639.jpg', 'کد 639')">
-      <img src="carpet639.jpg" alt="کد 639" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=639'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet639.jpg')">
+      <img src="carpet639.jpg" alt="کد 639" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=639'">
       <span>کد 639</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet645.jpg', 'کد 645')">
-      <img src="carpet645.jpg" alt="کد 645" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=645'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet645.jpg')">
+      <img src="carpet645.jpg" alt="کد 645" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=645'">
       <span>کد 645</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet646.jpg', 'کد 646')">
-      <img src="carpet646.jpg" alt="کد 646" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=646'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet646.jpg')">
+      <img src="carpet646.jpg" alt="کد 646" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=646'">
       <span>کد 646</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet647.jpg', 'کد 647')">
-      <img src="carpet647.jpg" alt="کد 647" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=647'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet647.jpg')">
+      <img src="carpet647.jpg" alt="کد 647" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=647'">
       <span>کد 647</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet649.jpg', 'کد 649')">
-      <img src="carpet649.jpg" alt="کد 649" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=649'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet649.jpg')">
+      <img src="carpet649.jpg" alt="کد 649" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=649'">
       <span>کد 649</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet650.jpg', 'کد 650')">
-      <img src="carpet650.jpg" alt="کد 650" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=650'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet650.jpg')">
+      <img src="carpet650.jpg" alt="کد 650" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=650'">
       <span>کد 650</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet652.jpg', 'کد 652')">
-      <img src="carpet652.jpg" alt="کد 652" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=652'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet652.jpg')">
+      <img src="carpet652.jpg" alt="کد 652" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=652'">
       <span>کد 652</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet653.jpg', 'کد 653')">
-      <img src="carpet653.jpg" alt="کد 653" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=653'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet653.jpg')">
+      <img src="carpet653.jpg" alt="کد 653" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=653'">
       <span>کد 653</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet654.jpg', 'کد 654')">
-      <img src="carpet654.jpg" alt="کد 654" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=654'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet654.jpg')">
+      <img src="carpet654.jpg" alt="کد 654" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=654'">
       <span>کد 654</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet656.jpg', 'کد 656')">
-      <img src="carpet656.jpg" alt="کد 656" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=656'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet656.jpg')">
+      <img src="carpet656.jpg" alt="کد 656" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=656'">
       <span>کد 656</span>
     </div>
-    <div class="catalog-item" onclick="addCarpetFromUrl('carpet659.jpg', 'کد 659')">
-      <img src="carpet659.jpg" alt="کد 659" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=659'">
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet659.jpg')">
+      <img src="carpet659.jpg" alt="کد 659" onerror="this.src='https://via.placeholder.com/60x80/333/fff?text=659'">
       <span>کد 659</span>
     </div>
   </div>
@@ -179,42 +174,17 @@
   const canvas = document.getElementById('mainCanvas');
   const ctx = canvas.getContext('2d');
   const placeholder = document.getElementById('placeholder');
-  const container = document.getElementById('canvas-container');
 
   let roomImg = null;
   let carpets = [];
   let activeCarpetIdx = -1;
   let activePtIdx = -1;
-  let imgBounds = { x: 0, y: 0, width: 0, height: 0, scale: 1 };
 
-  function updateCanvasDimensions() {
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-    calculateAspectFit();
-    draw();
+  function initCanvasSize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 125;
   }
-  
-  window.addEventListener('resize', updateCanvasDimensions);
-  setTimeout(updateCanvasDimensions, 100);
-
-  function calculateAspectFit() {
-    if (!roomImg) return;
-    const canvasRatio = canvas.width / canvas.height;
-    const imgRatio = roomImg.width / roomImg.height;
-
-    if (imgRatio > canvasRatio) {
-      imgBounds.width = canvas.width;
-      imgBounds.height = canvas.width / imgRatio;
-      imgBounds.x = 0;
-      imgBounds.y = (canvas.height - imgBounds.height) / 2;
-    } else {
-      imgBounds.height = canvas.height;
-      imgBounds.width = canvas.height * imgRatio;
-      imgBounds.y = 0;
-      imgBounds.x = (canvas.width - imgBounds.width) / 2;
-    }
-    imgBounds.scale = imgBounds.width / roomImg.width;
-  }
+  initCanvasSize();
 
   function handleRoomImage(file) {
     if (!file) return;
@@ -223,8 +193,9 @@
       roomImg = new Image();
       roomImg.onload = () => {
         placeholder.style.display = 'none';
-        carpets = [];
-        updateCanvasDimensions();
+        canvas.width = roomImg.width;
+        canvas.height = roomImg.height;
+        draw();
       };
       roomImg.src = e.target.result;
     };
@@ -234,63 +205,31 @@
   document.getElementById('roomGalleryInput').addEventListener('change', (e) => handleRoomImage(e.target.files[0]));
   document.getElementById('roomCameraInput').addEventListener('change', (e) => handleRoomImage(e.target.files[0]));
 
-  function createFallbackCarpetImage(label) {
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = 300;
-    tempCanvas.height = 400;
-    const tCtx = tempCanvas.getContext('2d');
-    
-    tCtx.fillStyle = '#8c2626';
-    tCtx.fillRect(0, 0, 300, 400);
-    
-    tCtx.strokeStyle = '#d4af37';
-    tCtx.lineWidth = 10;
-    tCtx.strokeRect(15, 15, 270, 370);
-    
-    tCtx.fillStyle = '#ffffff';
-    tCtx.font = 'bold 24px Tahoma';
-    tCtx.textAlign = 'center';
-    tCtx.fillText('طرح فرش', 150, 180);
-    tCtx.fillText(label, 150, 220);
-    
-    const img = new Image();
-    img.src = tempCanvas.toDataURL();
-    return img;
-  }
-
-  function addCarpetFromUrl(url, label) {
+  function addCarpetFromUrl(url) {
     if (!roomImg) {
       alert("لطفاً ابتدا تصویر اتاق را بارگذاری کنید.");
       return;
     }
     const img = new Image();
     img.crossOrigin = "anonymous";
-
-    const loadCarpetToCanvas = (carpetImg) => {
-      const { x, y, width: w, height: h } = imgBounds;
-      const offset = carpets.length * 15;
+    img.onload = () => {
+      const w = canvas.width;
+      const h = canvas.height;
+      const offset = carpets.length * 25;
 
       const newCarpet = {
-        img: carpetImg,
+        img: img,
         pts: [
-          { x: x + w * 0.3 + offset, y: y + h * 0.5 + offset },
-          { x: x + w * 0.7 + offset, y: y + h * 0.5 + offset },
-          { x: x + w * 0.8 + offset, y: y + h * 0.8 + offset },
-          { x: x + w * 0.2 + offset, y: y + h * 0.8 + offset }
+          { x: w * 0.3 + offset, y: h * 0.5 + offset },
+          { x: w * 0.7 + offset, y: h * 0.5 + offset },
+          { x: w * 0.8 + offset, y: h * 0.8 + offset },
+          { x: w * 0.2 + offset, y: h * 0.8 + offset }
         ]
       };
       carpets.push(newCarpet);
       activeCarpetIdx = carpets.length - 1;
       draw();
     };
-
-    img.onload = () => loadCarpetToCanvas(img);
-    img.onerror = () => {
-      // در صورت نرسیدن یا نیافتن فایل عکس، یک طرح پیش‌فرض نمایش داده می‌شود
-      const fallbackImg = createFallbackCarpetImage(label);
-      fallbackImg.onload = () => loadCarpetToCanvas(fallbackImg);
-    };
-
     img.src = url;
   }
 
@@ -305,7 +244,7 @@
     draw();
   });
 
-  function drawPerspectiveOnCtx(targetCtx, carpet) {
+  function drawPerspective(carpet) {
     const steps = 15;
     const { img, pts } = carpet;
 
@@ -319,23 +258,23 @@
         let p3 = getPoint(pts, u2, v2);
         let p4 = getPoint(pts, u1, v2);
 
-        targetCtx.save();
-        targetCtx.beginPath();
-        targetCtx.moveTo(p1.x, p1.y);
-        targetCtx.lineTo(p2.x, p2.y);
-        targetCtx.lineTo(p3.x, p3.y);
-        targetCtx.lineTo(p4.x, p4.y);
-        targetCtx.closePath();
-        targetCtx.clip();
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineTo(p3.x, p3.y);
+        ctx.lineTo(p4.x, p4.y);
+        ctx.closePath();
+        ctx.clip();
 
         let sx = u1 * img.width;
         let sy = v1 * img.height;
         let sw = (u2 - u1) * img.width;
         let sh = (v2 - v1) * img.height;
 
-        drawTriangleOnCtx(targetCtx, img, p1, p2, p3, {x: sx, y: sy}, {x: sx + sw, y: sy}, {x: sx + sw, y: sy + sh});
-        drawTriangleOnCtx(targetCtx, img, p1, p3, p4, {x: sx, y: sy}, {x: sx + sw, y: sy + sh}, {x: sx, y: sy + sh});
-        targetCtx.restore();
+        drawTriangle(img, p1, p2, p3, {x: sx, y: sy}, {x: sx + sw, y: sy}, {x: sx + sw, y: sy + sh});
+        drawTriangle(img, p1, p3, p4, {x: sx, y: sy}, {x: sx + sw, y: sy + sh}, {x: sx, y: sy + sh});
+        ctx.restore();
       }
     }
   }
@@ -349,30 +288,29 @@
     return { x: topX + v * (botX - topX), y: topY + v * (botY - topY) };
   }
 
-  function drawTriangleOnCtx(targetCtx, img, p0, p1, p2, t0, t1, t2) {
+  // تابع نگاشت مثلثی اصلاح‌شده با محاسبات ماتریسی دقیق
+  function drawTriangle(img, p0, p1, p2, t0, t1, t2) {
     let delta = t0.x * (t1.y - t2.y) + t1.x * (t2.y - t0.y) + t2.x * (t0.y - t1.y);
     if (Math.abs(delta) < 0.001) return;
 
     let deltaA = p0.x * (t1.y - t2.y) + p1.x * (t2.y - t0.y) + p2.x * (t0.y - t1.y);
     let deltaB = t0.x * (p1.x - p2.x) + t1.x * (p2.x - p0.x) + t2.x * (p0.x - p1.x);
-    let deltaC = t0.x * (t1.y * p2.x - t2.y * p1.x) + t1.x * (t2.y * p0.x - t0.y * p2.x) + t2.x * (p0.x * t1.y - t1.x * p0.y);
+    let deltaC = t0.x * (t1.y * p2.x - t2.y * p1.x) + t1.x * (t2.y * p0.x - t0.y * p2.x) + t2.x * (t0.y * p1.x - t1.y * p0.x);
 
     let deltaD = p0.y * (t1.y - t2.y) + p1.y * (t2.y - t0.y) + p2.y * (t0.y - t1.y);
     let deltaE = t0.x * (p1.y - p2.y) + t1.x * (p2.y - p0.y) + t2.x * (p0.y - p1.y);
-    let deltaF = t0.x * (t1.y * p2.y - t2.y * p1.y) + t1.x * (t2.y * p0.y - t0.y * p2.y) + t2.x * (p0.y * t1.y - t1.y * p0.y);
+    let deltaF = t0.x * (t1.y * p2.y - t2.y * p1.y) + t1.x * (t2.y * p0.y - t0.y * p2.y) + t2.x * (t0.y * p1.y - t1.y * p0.y);
 
-    targetCtx.transform(deltaA / delta, deltaD / delta, deltaB / delta, deltaE / delta, deltaC / delta, deltaF / delta);
-    targetCtx.drawImage(img, 0, 0);
+    ctx.transform(deltaA / delta, deltaD / delta, deltaB / delta, deltaE / delta, deltaC / delta, deltaF / delta);
+    ctx.drawImage(img, 0, 0);
   }
 
   function draw(hideHandles = false) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (roomImg) {
-      ctx.drawImage(roomImg, imgBounds.x, imgBounds.y, imgBounds.width, imgBounds.height);
-    }
+    if (roomImg) ctx.drawImage(roomImg, 0, 0);
 
     carpets.forEach((carpet, cIdx) => {
-      drawPerspectiveOnCtx(ctx, carpet);
+      drawPerspective(carpet);
 
       if (!hideHandles) {
         ctx.strokeStyle = cIdx === activeCarpetIdx ? '#ff0055' : '#00e5ff';
@@ -386,7 +324,7 @@
         carpet.pts.forEach(p => {
           ctx.fillStyle = cIdx === activeCarpetIdx ? '#ff0055' : '#00e5ff';
           ctx.beginPath();
-          ctx.arc(p.x, p.y, Math.max(8, canvas.width * 0.012), 0, Math.PI * 2);
+          ctx.arc(p.x, p.y, canvas.width * 0.015, 0, Math.PI * 2);
           ctx.fill();
         });
       }
@@ -405,7 +343,7 @@
 
   function startDrag(e) {
     const pos = getCanvasPos(e);
-    const radius = 30;
+    const radius = canvas.width * 0.06;
 
     activePtIdx = -1;
 
@@ -439,29 +377,12 @@
 
   document.getElementById('downloadBtn').addEventListener('click', () => {
     if (!roomImg) return alert("لطفاً ابتدا عکس اتاق را وارد کنید.");
-    
-    const exportCanvas = document.createElement('canvas');
-    exportCanvas.width = roomImg.width;
-    exportCanvas.height = roomImg.height;
-    const exportCtx = exportCanvas.getContext('2d');
-
-    exportCtx.drawImage(roomImg, 0, 0);
-
-    const scale = roomImg.width / imgBounds.width;
-
-    carpets.forEach(carpet => {
-      const scaledPts = carpet.pts.map(p => ({
-        x: (p.x - imgBounds.x) * scale,
-        y: (p.y - imgBounds.y) * scale
-      }));
-
-      drawPerspectiveOnCtx(exportCtx, { img: carpet.img, pts: scaledPts });
-    });
-
+    draw(true);
     const link = document.createElement('a');
     link.download = 'carpet-pro.jpg';
-    link.href = exportCanvas.toDataURL('image/jpeg', 0.95);
+    link.href = canvas.toDataURL('image/jpeg', 0.9);
     link.click();
+    draw();
   });
 </script>
 </body>
