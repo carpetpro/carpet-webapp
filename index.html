@@ -9,8 +9,8 @@
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     body { font-family: Tahoma, sans-serif; background: #121212; color: #fff; text-align: center; overflow: hidden; }
     
-    .controls { display: flex; gap: 6px; padding: 10px; background: #1e1e1e; justify-content: center; flex-wrap: wrap; z-index: 10; position: relative; }
-    button, label.btn { padding: 8px 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+    .controls { display: flex; gap: 6px; padding: 8px; background: #1e1e1e; justify-content: center; flex-wrap: wrap; z-index: 10; position: relative; }
+    button, label.btn { padding: 8px 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
     
     .btn-blue { background: #0088cc; color: #fff; }
     .btn-purple { background: #9c27b0; color: #fff; }
@@ -19,15 +19,49 @@
     input[type="file"] { display: none; }
 
     /* نوار کاتالوگ فرش‌های نمونه */
-    #catalog-bar { display: flex; gap: 10px; overflow-x: auto; padding: 10px; background: #252525; position: relative; z-index: 9; align-items: center; }
-    #catalog-bar img { width: 60px; height: 60px; border-radius: 8px; border: 2px solid #555; object-fit: cover; cursor: pointer; flex-shrink: 0; background: #333; }
-    #catalog-bar img:active { border-color: #ff9800; transform: scale(0.95); }
+    #catalog-bar { 
+      display: flex; 
+      gap: 12px; 
+      overflow-x: auto; 
+      padding: 8px 12px; 
+      background: #252525; 
+      position: relative; 
+      z-index: 9; 
+      align-items: center;
+      scrollbar-width: thin;
+    }
+    .catalog-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .catalog-item img { 
+      width: 65px; 
+      height: 85px; 
+      border-radius: 6px; 
+      border: 2px solid #555; 
+      object-fit: cover; 
+      background: #333; 
+      transition: transform 0.1s, border-color 0.1s;
+    }
+    .catalog-item span {
+      font-size: 10px;
+      color: #ccc;
+      margin-top: 3px;
+      font-weight: bold;
+    }
+    .catalog-item:active img { 
+      border-color: #ff9800; 
+      transform: scale(0.95); 
+    }
 
-    #canvas-container { position: relative; width: 100vw; height: calc(100vh - 140px); background: #181818; display: flex; align-items: center; justify-content: center; }
+    #canvas-container { position: relative; width: 100vw; height: calc(100vh - 160px); background: #181818; display: flex; align-items: center; justify-content: center; }
     canvas { display: block; max-width: 100%; max-height: 100%; touch-action: none; }
 
     #placeholder { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); color: #aaa; text-align: center; pointer-events: none; width: 85%; }
-    #placeholder .icon { font-size: 45px; margin-bottom: 8px; display: block; }
+    #placeholder .icon { font-size: 40px; margin-bottom: 8px; display: block; }
   </style>
 </head>
 <body>
@@ -39,25 +73,97 @@
     <label class="btn btn-blue">📷 دوربین
       <input type="file" id="roomCameraInput" accept="image/*" capture="environment">
     </label>
-    <button class="btn btn-red" id="removeBtn">🗑️ حذف فرش فعال</button>
+    <button class="btn btn-red" id="removeBtn">🗑️ حذف فرش</button>
     <button class="btn btn-purple" id="downloadBtn">💾 ذخیره عکس</button>
     <button class="btn btn-green" id="sendBtn">✅ ارسال به ربات</button>
   </div>
 
   <div id="catalog-bar">
-    <span style="font-size:11px; color:#aaa; white-space:nowrap;">انتخاب فرش:</span>
-    <img src="https://raw.githubusercontent.com/carpetpro/carpet-webapp/main/carpet1.jpg" title="فرش ۱" onclick="addCarpetFromUrl(this.src)" onerror="this.src='https://via.placeholder.com/150/ff9800/ffffff?text=Carpet+1'">
-    <img src="https://raw.githubusercontent.com/carpetpro/carpet-webapp/main/carpet2.jpg" title="فرش ۲" onclick="addCarpetFromUrl(this.src)" onerror="this.src='https://via.placeholder.com/150/0088cc/ffffff?text=Carpet+2'">
-    <img src="https://raw.githubusercontent.com/carpetpro/carpet-webapp/main/carpet3.jpg" title="فرش ۳" onclick="addCarpetFromUrl(this.src)" onerror="this.src='https://via.placeholder.com/150/4caf50/ffffff?text=Carpet+3'">
+    <span style="font-size:11px; color:#ff9800; white-space:nowrap; font-weight:bold;">کاتالوگ:</span>
+    
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet632.jpg')">
+      <img src="carpet632.jpg" alt="کد 632" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=632'">
+      <span>کد 632</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet635.jpg')">
+      <img src="carpet635.jpg" alt="کد 635" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=635'">
+      <span>کد 635</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet636.jpg')">
+      <img src="carpet636.jpg" alt="کد 636" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=636'">
+      <span>کد 636</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet637.jpg')">
+      <img src="carpet637.jpg" alt="کد 637" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=637'">
+      <span>کد 637</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet639.jpg')">
+      <img src="carpet639.jpg" alt="کد 639" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=639'">
+      <span>کد 639</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet645.jpg')">
+      <img src="carpet645.jpg" alt="کد 645" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=645'">
+      <span>کد 645</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet646.jpg')">
+      <img src="carpet646.jpg" alt="کد 646" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=646'">
+      <span>کد 646</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet647.jpg')">
+      <img src="carpet647.jpg" alt="کد 647" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=647'">
+      <span>کد 647</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet649.jpg')">
+      <img src="carpet649.jpg" alt="کد 649" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=649'">
+      <span>کد 649</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet650.jpg')">
+      <img src="carpet650.jpg" alt="کد 650" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=650'">
+      <span>کد 650</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet652.jpg')">
+      <img src="carpet652.jpg" alt="کد 652" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=652'">
+      <span>کد 652</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet653.jpg')">
+      <img src="carpet653.jpg" alt="کد 653" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=653'">
+      <span>کد 653</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet654.jpg')">
+      <img src="carpet654.jpg" alt="کد 654" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=654'">
+      <span>کد 654</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet656.jpg')">
+      <img src="carpet656.jpg" alt="کد 656" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=656'">
+      <span>کد 656</span>
+    </div>
+
+    <div class="catalog-item" onclick="addCarpetFromUrl('carpet659.jpg')">
+      <img src="carpet659.jpg" alt="کد 659" onerror="this.src='https://via.placeholder.com/65x85/333/fff?text=659'">
+      <span>کد 659</span>
+    </div>
   </div>
 
   <div id="canvas-container">
     <div id="placeholder">
       <span class="icon">🏠</span>
       <p><b>سامانه پرو مجازی فرش</b></p>
-      <p style="font-size: 12px; margin-top: 6px; color: #888;">
+      <p style="font-size: 11px; margin-top: 6px; color: #888;">
         ۱. ابتدا تصویر اتاق را بارگذاری کنید.<br>
-        ۲. از نوار بالا فرش موردنظر خود را انتخاب کرده و زاویه آن را روی زمین تنظیم کنید.
+        ۲. فرش موردنظر را از کاتالوگ بالای صفحه انتخاب کنید.
       </p>
     </div>
     <canvas id="mainCanvas"></canvas>
@@ -78,7 +184,7 @@
 
   function initCanvasSize() {
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 140;
+    canvas.height = window.innerHeight - 160;
   }
   initCanvasSize();
 
@@ -103,7 +209,7 @@
 
   function addCarpetFromUrl(url) {
     if (!roomImg) {
-      alert("لطفاً ابتدا تصویر اتاق را از گالری یا دوربین انتخاب کنید.");
+      alert("لطفاً ابتدا تصویر اتاق را بارگذاری کنید.");
       return;
     }
     const img = new Image();
@@ -111,7 +217,7 @@
     img.onload = () => {
       const w = canvas.width;
       const h = canvas.height;
-      const offset = carpets.length * 30;
+      const offset = carpets.length * 25;
 
       const newCarpet = {
         img: img,
@@ -129,7 +235,6 @@
     img.src = url;
   }
 
-  // حذف فرش انتخاب شده یا آخرین فرش
   document.getElementById('removeBtn').addEventListener('click', () => {
     if (carpets.length === 0) return;
     if (activeCarpetIdx !== -1 && activeCarpetIdx < carpets.length) {
