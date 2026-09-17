@@ -1,2 +1,273 @@
-# carpet-webapp
-Carpet Try-on WebApp
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>پرو مجازی فرش</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { font-family: Tahoma, sans-serif; background: #121212; color: #fff; text-align: center; overflow: hidden; }
+    .controls { display: flex; gap: 8px; padding: 10px; background: #1e1e1e; justify-content: center; flex-wrap: wrap; z-index: 10; position: relative; }
+    button, label.btn { padding: 10px 14px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 13px; }
+    .btn-blue { background: #0088cc; color: #fff; }
+    .btn-green { background: #4caf50; color: #fff; }
+    .btn-orange { background: #ff9800; color: #fff; }
+    input[type="file"] { display: none; }
+    
+    #canvas-container { position: relative; width: 100vw; height: calc(100vh - 70px); background: #181818; display: flex; align-items: center; justify-content: center; }
+    canvas { display: block; max-width: 100%; max-height: 100%; touch-action: none; }
+    
+    /* راهنمای وسط صفحه */
+    #placeholder {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #aaa;
+      text-align: center;
+      pointer-events: none;
+      width: 80%;
+    }
+    #placeholder .icon { font-size: 50px; margin-bottom: 10px; display: block; }
+    #placeholder p { font-size: 14px; line-height: 1.6; color: #ddd; }
+  </style>
+</head>
+<body>
+
+  <div class="controls">
+    <label class="btn btn-blue">📷 عکس اتاق
+      <input type="file" id="roomInput" accept="image/*">
+    </label>
+    <label class="btn btn-orange">🖼 انتخاب فرش
+      <input type="file" id="carpetInput" accept="image/*">
+    </label>
+    <button class="btn btn-green" id="sendBtn">✅ ثبت و ارسال</button>
+  </div>
+
+  <div id="canvas-container">
+    <div id="placeholder">
+      <span class="icon">🖼️</span>
+      <p><b>به سامانه پرو مجازی خوش آمدید!</b></p>
+      <p style="font-size: 12px; margin-top: 8px; color: #888;">
+        ۱. ابتدا روی دکمه <b>«عکس اتاق»</b> بزنید.<br>
+        ۲. سپس دکمه <b>«انتخاب فرش»</b> را انتخاب کنید.<br>
+        ۳. گوشه‌های فرش را بکشید تا روی زمین تنظیم شود.
+      </p>
+    </div>
+    <canvas id="mainCanvas"></canvas>
+  </div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  if(tg) tg.expand();
+
+  const canvas = document.getElementById('mainCanvas');
+  const ctx = canvas.getContext('2d');
+  const placeholder = document.getElementById('placeholder');
+  
+  let roomImg = null;
+  let carpetImg = null;
+
+  let pts = [];
+  let activePt = -1;
+
+  // تنظیم ابعاد اولیه Canvas بر اساس صفحه
+  function initCanvasSize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 70;
+  }
+  initCanvasSize();
+
+  function initPoints() {
+    const w = canvas.width;
+    const h = canvas.height;
+    pts = [
+      { x: w * 0.3, y: h * 0.6 },
+      { x: w * 0.7, y: h * 0.6 },
+      { x: w * 0.8, y: h * 0.9 },
+      { x: w * 0.2, y: h * 0.9 }
+    ];
+  }
+
+  document.getElementById('roomInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      roomImg = new Image();
+      roomImg.onload = () => {
+        placeholder.style.display = 'none'; // مخفی کردن راهنما
+        canvas.width = roomImg.width;
+        canvas.height = roomImg.height;
+        initPoints();
+        draw();
+      };
+      roomImg.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('carpetInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      carpetImg = new Image();
+      carpetImg.onload = () => {
+        if (!pts.length) initPoints();
+        draw();
+      };
+      carpetImg.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function drawPerspectiveCarpet() {
+    if (!carpetImg) return;
+    const steps = 20;
+    
+    for (let i = 0; i < steps; i++) {
+      for (let j = 0; j < steps; j++) {
+        let u1 = i / steps, v1 = j / steps;
+        let u2 = (i + 1) / steps, v2 = (j + 1) / steps;
+
+        let p1 = getPoint(u1, v1);
+        let p2 = getPoint(u2, v1);
+        let p3 = getPoint(u2, v2);
+        let p4 = getPoint(u1, v2);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineTo(p3.x, p3.y);
+        ctx.lineTo(p4.x, p4.y);
+        ctx.closePath();
+        ctx.clip();
+
+        let sx = u1 * carpetImg.width;
+        let sy = v1 * carpetImg.height;
+        let sw = (u2 - u1) * carpetImg.width;
+        let sh = (v2 - v1) * carpetImg.height;
+
+        drawTriangle(p1, p2, p3, {x: sx, y: sy}, {x: sx + sw, y: sy}, {x: sx + sw, y: sy + sh});
+        drawTriangle(p1, p3, p4, {x: sx, y: sy}, {x: sx + sw, y: sy + sh}, {x: sx, y: sy + sh});
+
+        ctx.restore();
+      }
+    }
+  }
+
+  function getPoint(u, v) {
+    let topX = pts[0].x + u * (pts[1].x - pts[0].x);
+    let topY = pts[0].y + u * (pts[1].y - pts[0].y);
+    let botX = pts[3].x + u * (pts[2].x - pts[3].x);
+    let botY = pts[3].y + u * (pts[2].y - pts[3].y);
+
+    return {
+      x: topX + v * (botX - topX),
+      y: topY + v * (botY - topY)
+    };
+  }
+
+  function drawTriangle(p0, p1, p2, t0, t1, t2) {
+    let delta = t0.x * (t1.y - t2.y) + t1.x * (t2.y - t0.y) + t2.x * (t0.y - t1.y);
+    if (Math.abs(delta) < 0.001) return;
+
+    let deltaA = p0.x * (t1.y - t2.y) + p1.x * (t2.y - t0.y) + p2.x * (t0.y - t1.y);
+    let deltaB = t0.x * (p1.x - p2.x) + t1.x * (p2.x - p0.x) + t2.x * (p0.x - p1.x);
+    let deltaC = t0.x * (t1.y * p2.x - t2.y * p1.x) + t1.x * (t2.y * p0.x - t0.y * p2.x) + t2.x * (t0.y * p1.x - t1.y * p0.x);
+
+    let deltaD = p0.y * (t1.y - t2.y) + p1.y * (t2.y - t0.y) + p2.y * (t0.y - t1.y);
+    let deltaE = t0.x * (p1.y - p2.y) + t1.x * (p2.y - p0.y) + t2.x * (p0.y - p1.y);
+    let deltaF = t0.x * (t1.y * p2.y - t2.y * p1.y) + t1.x * (t2.y * p0.y - t0.y * p2.y) + t2.x * (t0.y * p1.y - t1.y * p0.y);
+
+    ctx.transform(deltaA / delta, deltaD / delta, deltaB / delta, deltaE / delta, deltaC / delta, deltaF / delta);
+    ctx.drawImage(carpetImg, 0, 0);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (roomImg) ctx.drawImage(roomImg, 0, 0);
+
+    if (carpetImg) {
+      drawPerspectiveCarpet();
+
+      ctx.strokeStyle = '#00e5ff';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      pts.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.closePath();
+      ctx.stroke();
+
+      pts.forEach(p => {
+        ctx.fillStyle = '#ff0055';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, canvas.width * 0.02, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+  }
+
+  function getCanvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  }
+
+  function startDrag(e) {
+    if (!carpetImg) return;
+    const pos = getCanvasPos(e);
+    const radius = canvas.width * 0.08; 
+    activePt = pts.findIndex(p => Math.hypot(p.x - pos.x, p.y - pos.y) < radius);
+  }
+
+  function moveDrag(e) {
+    if (activePt === -1) return;
+    const pos = getCanvasPos(e);
+    pts[activePt] = pos;
+    draw();
+  }
+
+  function stopDrag() { activePt = -1; }
+
+  canvas.addEventListener('mousedown', startDrag);
+  canvas.addEventListener('mousemove', moveDrag);
+  canvas.addEventListener('mouseup', stopDrag);
+
+  canvas.addEventListener('touchstart', startDrag);
+  canvas.addEventListener('touchmove', moveDrag);
+  canvas.addEventListener('touchend', stopDrag);
+
+  document.getElementById('sendBtn').addEventListener('click', () => {
+    if (!roomImg) {
+      alert("لطفاً ابتدا عکس اتاق را وارد کنید.");
+      return;
+    }
+    activePt = -1;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (roomImg) ctx.drawImage(roomImg, 0, 0);
+    if (carpetImg) drawPerspectiveCarpet();
+
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+    if (tg) {
+      tg.sendData(JSON.stringify({ image: dataUrl }));
+    } else {
+      alert("تصویر آماده شد.");
+    }
+  });
+</script>
+</body>
+</html>
